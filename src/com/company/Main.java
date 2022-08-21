@@ -2,10 +2,7 @@ package com.company;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -71,7 +68,7 @@ public class Main {
     final static int PANELWIDTH = 1000;
     final static int PANELHEIGHT = 1000;
 //TODO default 2000
-    final static int mandelResolution = 200;
+    final static int mandelResolution = 500;
     static BigDecimal steps = WIDTH.divide(new BigDecimal(mandelResolution), mc);
      static int iterations = 15;
      static JButton iterationButton = null;
@@ -83,6 +80,17 @@ public class Main {
         int width = PANELWIDTH+1;
         int height = PANELHEIGHT+1;
         JFrame frame = new JFrame("Direct draw demo");
+
+        KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                return true;
+            }
+        };
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
+
+
+
         DirectDrawDemo panel = new DirectDrawDemo(width, height);
         panel.addMouseListener(new MouseAdapter() {
             @Override
@@ -168,20 +176,23 @@ public class Main {
             double xRealDouble = xReal.doubleValue();
             double xRealStartDouble = realStart.doubleValue();
             double xRealMaxDouble = realMax.doubleValue();
-            System.out.println((int)(((xRealDouble - xRealStartDouble)/(xRealMaxDouble - xRealStartDouble)) * 100));
+            //System.out.println((int)(((xRealDouble - xRealStartDouble)/(xRealMaxDouble - xRealStartDouble)) * 100));
             progress.fill((int)(((xRealDouble - xRealStartDouble)/(xRealMaxDouble - xRealStartDouble)) * 100));
             numSteps++;
-            System.out.println(xReal);
+            //System.out.println(xReal);
             //System.out.println(steps);
             for(BigDecimal yImg = CENTER_Y.subtract(HEIGHT); (yImg.compareTo(ImgMax) < 0); yImg = yImg.add(steps)){
                 //System.out.println(xReal);
-                System.out.println(yImg);
+                //System.out.println(yImg);
                 BigComplexNumber c = new BigComplexNumber(xReal, yImg);
                 int x = getBoundedRange(c);
                 Point p = transformBigGridToPixel(c.getRealBig(), c.getImgBig());
                 p.strength = x;
-                if(x > 0)
+                if(x > 0){
                     median.add(p);
+                    System.out.println("color");
+                }
+
                 else{//if just black and no color
                     if(debug == 1){
                         System.out.println(p.x);
@@ -224,7 +235,7 @@ public class Main {
             if(color > 255 || color < 0)
                 color = 255;
             System.out.println(color);
-            panel.drawRect(new Color(color, color, color), p.x, p.y, 1, 1);
+            panel.drawRect(new Color(color, color, 255), p.x, p.y, 1, 1);
         }
 
     }
@@ -271,7 +282,7 @@ public class Main {
             current = BigComplexNumber.pow(current, 2, mc);
             current = BigComplexNumber.add(current, c);
             if(outsideBigMandelBrotCircle(current.getRealBig(), current.getImgBig())){
-                System.out.println("broke at iteration " + i);
+                //System.out.println("broke at iteration " + i);
                 iterationBreak = i;
                 outside = true;
                 break;
@@ -279,7 +290,7 @@ public class Main {
             //prev[i] = current.getRealBig();
         }
         if(!outside){
-            System.out.println("dint break");
+            //System.out.println("dint break");
             return 0;
         }
 
